@@ -1,8 +1,11 @@
+import os
 import streamlit as st
 import openpyxl
 import pandas as pd
 import plotly.graph_objects as go
-import os
+
+# Forzar directorio correcto
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 st.set_page_config(
     page_title="SIAP-ICPI | QUADRUM",
@@ -12,15 +15,9 @@ st.set_page_config(
 
 @st.cache_data
 def cargar_datos():
-   # Buscar el Excel en el directorio del script
-    base = os.path.dirname(os.path.abspath(__file__))
-    ruta = os.path.join(base, "SIAP_ICPI_v1_0_PMV_FINAL.xlsx")
-    if not os.path.exists(ruta):
-        raise FileNotFoundError(
-            f"Excel no encontrado en {ruta}. "
-            f"Archivos visibles: {os.listdir(base)}"
-        )
-    wb = openpyxl.load_workbook(ruta, data_only=True)
+    wb = openpyxl.load_workbook(
+        "SIAP_ICPI_v1_0_PMV_FINAL.xlsx", data_only=True
+    )
     d = {}
     ws14 = wb['H14_CALCULO_ICPI']
     d['icpi'] = ws14['B32'].value or 41.24
@@ -40,7 +37,6 @@ def cargar_datos():
     d['metas'] = [
         {
             'Meta': str(r[0]),
-            'P_i': float(r[1]) if r[1] is not None else 0.0,
             'V_i': int(r[9]) if r[9] is not None else 0,
             'T_i': float(r[10]) if r[10] is not None else 0.0,
         }
@@ -50,6 +46,7 @@ def cargar_datos():
     wb.close()
     return d
 
+# HEADER
 st.markdown("""
 <div style='background:#003087;padding:20px;border-radius:8px;margin-bottom:20px'>
 <h1 style='color:white;margin:0'>🏛️ SIAP-ICPI v1.0 — QUADRUM</h1>
@@ -77,10 +74,11 @@ def avep(v):
     if v >= 20: return "🔶 Gestión por Ocurrencia"
     return "🔴 Ruptura Sistémica"
 
+# KPIs
 st.subheader("Índices Maestros del Sistema")
 c1, c2, c3, c4, c5 = st.columns(5)
-c1.metric("ICPI Global",        f"{icpi:.1f}%",   avep(icpi))
-c2.metric("ICM SIGAD Oficial",  f"{icm:.0f}%",    "Auto-reporte")
+c1.metric("ICPI Global",        f"{icpi:.1f}%",    avep(icpi))
+c2.metric("ICM SIGAD Oficial",  f"{icm:.0f}%",     "Auto-reporte")
 c3.metric("Brecha ICM-ICPI",    f"{brecha:.2f} pp",
           "⚠️ MOM-I Activa" if brecha > 30 else "Normal",
           delta_color="inverse")
@@ -88,8 +86,9 @@ c4.metric("ITAM Transparencia", f"{datos['itam']:.1f}%")
 c5.metric("IFE Electoral",      f"{datos['ife']:.1f}%")
 
 st.divider()
-col_a, col_b = st.columns(2)
 
+# GAUGE + BRECHA
+col_a, col_b = st.columns(2)
 with col_a:
     st.subheader("Medidor ICPI")
     fig = go.Figure(go.Indicator(
@@ -124,16 +123,21 @@ with col_b:
         text=[f"{icm:.0f}%", f"{icpi:.1f}%"],
         textposition='outside'
     )
-    fig2.add_annotation(x=0.5, y=(icm+icpi)/2,
-        text=f"Brecha: {brecha:.2f} pp", showarrow=False,
-        font=dict(size=16, color="red"), xref="paper")
+    fig2.add_annotation(
+        x=0.5, y=(icm + icpi) / 2,
+        text=f"Brecha: {brecha:.2f} pp",
+        showarrow=False,
+        font=dict(size=16, color="red"),
+        xref="paper"
+    )
     fig2.update_layout(height=300, yaxis=dict(range=[0,115]),
         margin=dict(t=20,b=20,l=20,r=20), showlegend=False)
     st.plotly_chart(fig2, use_container_width=True)
 
 st.divider()
-col_c, col_d = st.columns(2)
 
+# IED + METAS
+col_c, col_d = st.columns(2)
 with col_c:
     st.subheader("IED por Dirección")
     df_ied = pd.DataFrame(datos['ied'])
@@ -155,24 +159,46 @@ with col_d:
     st.subheader("Estado Metas PDOT")
     df_m = pd.DataFrame(datos['metas'])
     if not df_m.empty:
-        cert = len(df_m[df_m['V_i']==1])
-        proc = len(df_m[(df_m['V_i']==0) & (df_m['T_i']>0)])
-        sin  = len(df_m[df_m['T_i']==0])
+        cert = len(df_m[df_m['V_i'] == 1])
+        proc = len(df_m[(df_m['V_i'] == 0) & (df_m['T_i'] > 0)])
+        sin  = len(df_m[df_m['T_i'] == 0])
         fig4 = go.Figure(go.Pie(
-            labels=['Certificadas (Vi=1)','En proceso','Sin avance'],
+            labels=['Certificadas (Vi=1)', 'En proceso', 'Sin avance'],
             values=[cert, proc, sin],
-            marker_colors=['#44bb44','#ffcc00','#ff4444'],
+            marker_colors=['#44bb44', '#ffcc00', '#ff4444'],
             hole=0.4
         ))
-        fig4.update_layout(height=320, margin=dict(t=10,b=10,l=10,r=10))
+        fig4.update_layout(height=320,
+            margin=dict(t=10,b=10,l=10,r=10))
         st.plotly_chart(fig4, use_container_width=True)
 
 st.divider()
+
+# MOM SIGNALS
 st.subheader("🔔 Señales de Atención Temprana (MOM)")
 m1, m2, m3 = st.columns(3)
-m1.error("**MOM-I — Fragmentación Selectiva**\n\n9 de 20 metas en SIGAD\n\n41.4% presupuesto estratégico\n\nICM=100% sobre universo reducido")
-m2.success("**MOM-II — Sustitución de Metas**\n\n✅ Sin señal activa\n\nPOA mantiene integridad documental")
-m3.error("**MOM-III — Inflación de Unidades**\n\nPDOT-012: 8,295% declarado\n\nvs 8% devengado real")
+m1.error(
+    "**MOM-I — Fragmentación Selectiva**\n\n"
+    "9 de 20 metas reportadas en SIGAD\n\n"
+    "41.4% del presupuesto estratégico\n\n"
+    "ICM=100% sobre universo reducido"
+)
+m2.success(
+    "**MOM-II — Sustitución de Metas**\n\n"
+    "✅ Sin señal activa\n\n"
+    "POA mantiene integridad documental"
+)
+m3.error(
+    "**MOM-III — Inflación de Unidades**\n\n"
+    "PDOT-012: 8,295% declarado\n\n"
+    "vs 8% devengado real\n\n"
+    "Unidad de medida inconsistente"
+)
 
 st.divider()
-st.caption("SIAP-ICPI v1.0 | QUADRUM | GAD Montecristi 2024 | Javier Delgado Santana | github.com/desabuelo-beep/SIAP-ICPI")
+st.caption(
+    "SIAP-ICPI v1.0 | Plataforma QUADRUM | "
+    "GAD Municipal de Montecristi 2024 | "
+    "Autor: Javier Delgado Santana | "
+    "github.com/desabuelo-beep/SIAP-ICPI"
+)
