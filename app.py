@@ -85,4 +85,97 @@ c1, c2, c3, c4, c5 = st.columns(5)
 c1.metric("ICPI Global",        f"{icpi:.1f}%",   avep(icpi))
 c2.metric("ICM SIGAD Oficial",  f"{icm:.0f}%",    "Auto-reporte")
 c3.metric("Brecha ICM-ICPI",    f"{brecha:.2f} pp",
-          "⚠️ MOM-I Activa" if brecha > 30
+          "⚠️ MOM-I Activa" if brecha > 30 else "Normal",
+          delta_color="inverse")
+c4.metric("ITAM Transparencia", f"{datos['itam']:.1f}%")
+c5.metric("IFE Electoral",      f"{datos['ife']:.1f}%")
+
+st.divider()
+col_a, col_b = st.columns(2)
+
+with col_a:
+    st.subheader("Medidor ICPI")
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number+delta",
+        value=icpi,
+        delta={'reference': icm, 'valueformat': '.1f'},
+        title={'text': "ICPI vs ICM Oficial"},
+        gauge={
+            'axis': {'range': [0, 100]},
+            'bar': {'color': "#003087"},
+            'steps': [
+                {'range': [0,  20], 'color': '#ff4444'},
+                {'range': [20, 40], 'color': '#ff8800'},
+                {'range': [40, 70], 'color': '#ffcc00'},
+                {'range': [70, 90], 'color': '#44bb44'},
+                {'range': [90,100], 'color': '#008800'},
+            ],
+            'threshold': {'line': {'color':'red','width':3},
+                          'thickness': 0.8, 'value': icm}
+        }
+    ))
+    fig.update_layout(height=300, margin=dict(t=40,b=0,l=20,r=20))
+    st.plotly_chart(fig, use_container_width=True)
+
+with col_b:
+    st.subheader("Brecha ICM vs ICPI")
+    fig2 = go.Figure()
+    fig2.add_bar(
+        x=["ICM SIGAD (auto-reporte)", "ICPI SIAP (verificado)"],
+        y=[icm, icpi],
+        marker_color=["#2196F3", "#003087"],
+        text=[f"{icm:.0f}%", f"{icpi:.1f}%"],
+        textposition='outside'
+    )
+    fig2.add_annotation(x=0.5, y=(icm+icpi)/2,
+        text=f"Brecha: {brecha:.2f} pp", showarrow=False,
+        font=dict(size=16, color="red"), xref="paper")
+    fig2.update_layout(height=300, yaxis=dict(range=[0,115]),
+        margin=dict(t=20,b=20,l=20,r=20), showlegend=False)
+    st.plotly_chart(fig2, use_container_width=True)
+
+st.divider()
+col_c, col_d = st.columns(2)
+
+with col_c:
+    st.subheader("IED por Dirección")
+    df_ied = pd.DataFrame(datos['ied'])
+    if not df_ied.empty:
+        df_ied = df_ied.sort_values('IED', ascending=True)
+        colores = ['#ff4444' if v < 55 else '#ffcc00' if v < 70
+                   else '#44bb44' for v in df_ied['IED']]
+        fig3 = go.Figure(go.Bar(
+            x=df_ied['IED'], y=df_ied['Dirección'],
+            orientation='h', marker_color=colores,
+            text=[f"{v:.1f}%" for v in df_ied['IED']],
+            textposition='outside'
+        ))
+        fig3.update_layout(height=320, xaxis=dict(range=[0,115]),
+            margin=dict(t=10,b=10,l=10,r=60))
+        st.plotly_chart(fig3, use_container_width=True)
+
+with col_d:
+    st.subheader("Estado Metas PDOT")
+    df_m = pd.DataFrame(datos['metas'])
+    if not df_m.empty:
+        cert = len(df_m[df_m['V_i']==1])
+        proc = len(df_m[(df_m['V_i']==0) & (df_m['T_i']>0)])
+        sin  = len(df_m[df_m['T_i']==0])
+        fig4 = go.Figure(go.Pie(
+            labels=['Certificadas (Vi=1)','En proceso','Sin avance'],
+            values=[cert, proc, sin],
+            marker_colors=['#44bb44','#ffcc00','#ff4444'],
+            hole=0.4
+        ))
+        fig4.update_layout(height=320, margin=dict(t=10,b=10,l=10,r=10))
+        st.plotly_chart(fig4, use_container_width=True)
+
+st.divider()
+st.subheader("🔔 Señales de Atención Temprana (MOM)")
+m1, m2, m3 = st.columns(3)
+m1.error("**MOM-I — Fragmentación Selectiva**\n\n9 de 20 metas en SIGAD\n\n41.4% presupuesto estratégico\n\nICM=100% sobre universo reducido")
+m2.success("**MOM-II — Sustitución de Metas**\n\n✅ Sin señal activa\n\nPOA mantiene integridad documental")
+m3.error("**MOM-III — Inflación de Unidades**\n\nPDOT-012: 8,295% declarado\n\nvs 8% devengado real")
+
+st.divider()
+st.caption("SIAP-ICPI v1.0 | QUADRUM | GAD Montecristi 2024 | Javier Delgado Santana | github.com/desabuelo-beep/SIAP-ICPI")
