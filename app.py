@@ -877,6 +877,6 @@ st.markdown("""
 <div style='text-align:center;color:#999;font-size:0.78rem;padding:8px 0'>
     <b>SIAP-ICPI v1.0</b> | Plataforma QUADRUM |
     GAD Municipal de Montecristi 2024 |
-    Autor: Ronald J. Delgado Santana |
+    Autor: Javo Delgado Santana |
     <a href='https://github.com/desabuelo-beep/SIAP-ICPI' target='_blank'>GitHub</a>
 </div>""", unsafe_allow_html=True)
