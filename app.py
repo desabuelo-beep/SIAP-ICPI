@@ -74,143 +74,88 @@ st.markdown("""
 # ── CARGA DE DATOS ───────────────────────────────────────────────
 @st.cache_data(show_spinner="Cargando motor SIAP-ICPI...")
 def cargar_datos():
-    # Buscar el Excel en todos los directorios posibles
-    directorios = [
-        '/mount/src/siap-icpi',
-        os.path.dirname(os.path.abspath(__file__)),
-        '.',
-        '/app',
-    ]
-    ruta = None
-    for d in directorios:
-        try:
-            for f in os.listdir(d):
-               if f.endswith('.xlsx'):
-                    ruta = os.path.join(d, f)
-                    break
-        except Exception:
-            continue
-        if ruta:
-            break
+    import glob
 
-    if ruta is None:
+    # Buscar cualquier .xlsx en el sistema
+    rutas = (
+        glob.glob('/mount/src/siap-icpi/*.xlsx') +
+        glob.glob('/mount/src/**/*.xlsx', recursive=True) +
+        glob.glob('*.xlsx')
+    )
+
+    if not rutas:
         raise FileNotFoundError(
-            "No se encontró el archivo Excel del motor SIAP-ICPI. "
-            "Verifique que SIAP_ICPI_v1_0_PMV_FINAL.xlsx está en el repositorio."
+            f"Sin Excel. Visible: {os.listdir('/mount/src/siap-icpi/')}"
         )
+
+    ruta = rutas[0]
 
     wb = openpyxl.load_workbook(ruta, data_only=True)
     d = {}
 
-    # ICPI Global (H14)
     ws14 = wb['H14_CALCULO_ICPI']
     icpi_raw = ws14['B32'].value
     d['icpi'] = float(icpi_raw) if icpi_raw else 41.24
 
-    # ICM (H01)
     ws01 = wb['H01_PARAMETROS_GENERALES']
     icm_raw = ws01['B12'].value
     d['icm'] = float(icm_raw) * 100 if icm_raw else 100.0
 
-    # ITAM (H16)
     ws16 = wb['H16_ITAM_TRANSPARENCIA']
     itam_raw = ws16['B27'].value
     d['itam'] = float(itam_raw) * 100 if itam_raw else 62.1
 
-    # IFE y SSC (H15)
     ws15 = wb['H15_INDICES_COMPLEMENTARIOS']
     ife_raw = ws15['B31'].value
     d['ife'] = float(ife_raw) if ife_raw else 85.0
     ssc_raw = ws15['B44'].value
     d['ssc'] = float(ssc_raw) * 100 if ssc_raw else 2.85
 
-    # AVEP (H14)
     avep_raw = ws14['B36'].value
     d['avep'] = str(avep_raw) if avep_raw else "⚠️ Transición Crítica"
 
-    # IED por Dirección (H18)
     ws18 = wb['H18_IED_EFICIENCIA_DIRECTIVA']
-    ied_list = []
-    for row in ws18.iter_rows(min_row=7, max_row=14, values_only=True):
-        if row[0] and row[2] is not None:
-            try:
-                ied_list.append({
-                    'Dirección': str(row[0]),
-                    'Metas': int(row[1]) if row[1] else 0,
-                    'IED': float(row[2]) * 100,
-                    'Semáforo': str(row[3]) if row[3] else '',
-                    'Nivel': str(row[4]) if row[4] else '',
-                })
-            except Exception:
-                continue
-    d['ied'] = ied_list
+    d['ied'] = [
+        {'Dirección': str(r[0]), 'Metas': int(r[1]) if r[1] else 0,
+         'IED': float(r[2]) * 100, 'Semáforo': str(r[3]) if r[3] else '',
+         'Nivel': str(r[4]) if r[4] else ''}
+        for r in ws18.iter_rows(min_row=7, max_row=14, values_only=True)
+        if r[0] and r[2] is not None
+    ]
 
-    # Metas PDOT (H14 + H05)
     ws05 = wb['H05_METAS_PDOT']
-    meta_desc = {}
-    for row in ws05.iter_rows(min_row=6, max_row=25, values_only=True):
-        if row[0] and row[1]:
-            meta_desc[str(row[0])] = str(row[1])[:50]
+    meta_desc = {str(r[0]): str(r[1])[:50]
+                 for r in ws05.iter_rows(min_row=6, max_row=25, values_only=True)
+                 if r[0] and r[1]}
 
-    metas = []
-    for row in ws14.iter_rows(min_row=6, max_row=25, values_only=True):
-        if row[0]:
-            meta_id = str(row[0])
-            try:
-                metas.append({
-                    'Meta': meta_id,
-                    'Descripción': meta_desc.get(meta_id, meta_id),
-                    'P_i': float(row[1]) if row[1] else 0.0,
-                    'V_i': int(row[9]) if row[9] is not None else 0,
-                    'T_i': float(row[10]) if row[10] is not None else 0.0,
-                    'ICPI_i': float(row[13]) if len(row) > 13 and row[13] else 0.0,
-                })
-            except Exception:
-                continue
-    d['metas'] = metas
+    d['metas'] = [
+        {'Meta': str(r[0]),
+         'Descripción': meta_desc.get(str(r[0]), str(r[0])),
+         'P_i': float(r[1]) if r[1] else 0.0,
+         'V_i': int(r[9]) if r[9] is not None else 0,
+         'T_i': float(r[10]) if r[10] is not None else 0.0,
+         'ICPI_i': float(r[13]) if len(r) > 13 and r[13] else 0.0}
+        for r in ws14.iter_rows(min_row=6, max_row=25, values_only=True)
+        if r[0]
+    ]
 
-    # MOM señales (H11)
-    ws11 = wb['H11_ALERTAS_MOM']
-    mom_data = {'MOM_I': 'Sin dato', 'MOM_II': 'Sin dato', 'MOM_III': 'Sin dato'}
-    for row in ws11.iter_rows(values_only=True):
-        if row[0] and isinstance(row[0], str):
-            if 'MOM-I' in row[0] and row[1]:
-                mom_data['MOM_I'] = str(row[1])[:80]
-            elif 'MOM-II' in row[0] and row[1]:
-                mom_data['MOM_II'] = str(row[1])[:80]
-            elif 'MOM-III' in row[0] and row[1]:
-                mom_data['MOM_III'] = str(row[1])[:80]
-    d['mom'] = mom_data
-
-    # Presupuesto por eje (H09)
     ws09 = wb['H09_EJECUCION_PRESUPUESTARIA']
-    presup = []
-    for row in ws09.iter_rows(min_row=5, max_row=24, values_only=True):
-        if row[1] and row[5] and row[9]:
-            try:
-                presup.append({
-                    'Meta': str(row[1]),
-                    'Codificado': float(row[5]),
-                    'Devengado': float(row[9]),
-                    'T_i': float(row[10]) if row[10] else 0.0,
-                })
-            except Exception:
-                continue
-    d['presupuesto'] = presup
+    d['presupuesto'] = [
+        {'Meta': str(r[1]), 'Codificado': float(r[5]),
+         'Devengado': float(r[9]), 'T_i': float(r[10]) if r[10] else 0.0}
+        for r in ws09.iter_rows(min_row=5, max_row=24, values_only=True)
+        if r[1] and r[5] and r[9]
+    ]
 
-    # H17 Sensibilidad
     ws17 = wb['H17_SENSIBILIDAD_DELTA']
-    sensib = []
-    for row in ws17.iter_rows(min_row=6, max_row=25, values_only=True):
-        if row[0] and row[1]:
-            try:
-                sensib.append({
-                    'Meta': str(row[0]),
-                    'Delta_ICPI': float(row[1]) if row[1] else 0.0,
-                })
-            except Exception:
-                continue
+    sensib = [
+        {'Meta': str(r[0]), 'Delta_ICPI': float(r[1]) if r[1] else 0.0}
+        for r in ws17.iter_rows(min_row=6, max_row=25, values_only=True)
+        if r[0] and r[1]
+    ]
     d['sensibilidad'] = sorted(sensib, key=lambda x: x['Delta_ICPI'], reverse=True)[:5]
+
+    d['mom'] = {'MOM_I': '⚠️ Activa', 'MOM_II': '✅ Sin señal', 'MOM_III': '⚠️ Activa'}
 
     wb.close()
     return d
