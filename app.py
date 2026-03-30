@@ -12,16 +12,13 @@ st.set_page_config(
 
 @st.cache_data
 def cargar_datos():
-    posibles = [
-        "SIAP_ICPI_v1_0_PMV_FINAL.xlsx",
-        "/mount/src/siap-icpi/SIAP_ICPI_v1_0_PMV_FINAL.xlsx",
-        os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                     "SIAP_ICPI_v1_0_PMV_FINAL.xlsx"),
-    ]
-    ruta = next((p for p in posibles if os.path.exists(p)), None)
-    if ruta is None:
+   # Buscar el Excel en el directorio del script
+    base = os.path.dirname(os.path.abspath(__file__))
+    ruta = os.path.join(base, "SIAP_ICPI_v1_0_PMV_FINAL.xlsx")
+    if not os.path.exists(ruta):
         raise FileNotFoundError(
-            f"Excel no encontrado. Archivos visibles: {os.listdir('.')}"
+            f"Excel no encontrado en {ruta}. "
+            f"Archivos visibles: {os.listdir(base)}"
         )
     wb = openpyxl.load_workbook(ruta, data_only=True)
     d = {}
