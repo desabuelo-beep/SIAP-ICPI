@@ -237,6 +237,6 @@ st.divider()
 st.caption(
     "SIAP-ICPI v1.0 | Plataforma QUADRUM | "
     "GAD Municipal de Montecristi 2024 | "
-    "Autor: Ronald J. Delgado Santana | "
+    "Autor: Javier Delgado Santana | "
     "github.com/desabuelo-beep/SIAP-ICPI"
 )
