@@ -12,8 +12,10 @@ st.set_page_config(
 
 @st.cache_data
 def cargar_datos():
-    wb = openpyxl.load_workbook(
-        "SIAP_ICPI_v1_0_PMV_FINAL.xlsx", data_only=True
+    import os
+    ruta = os.path.join(os.path.dirname(__file__), 
+                        "SIAP_ICPI_v1_0_PMV_FINAL.xlsx")
+    wb = openpyxl.load_workbook(ruta, data_only=True)
     )
     d = {}
 
