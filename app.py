@@ -503,7 +503,7 @@ elif pagina == "🏢 Tablero IED":
 
 
 # ════════════════════════════════════════════════════════════════
-# SEÑALES MOM
+# SEÑALES DE ATENCIÓN TEMPRANA MOM
 # ════════════════════════════════════════════════════════════════
 elif pagina == "🔔 Señales MOM":
     st.markdown("## 🔔 Señales de Atención Temprana — Protocolos MOM")
