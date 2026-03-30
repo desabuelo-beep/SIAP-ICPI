@@ -13,11 +13,55 @@ st.set_page_config(
 @st.cache_data
 def cargar_datos():
     import os
-    ruta = os.path.join(os.path.dirname(__file__), 
-                        "SIAP_ICPI_v1_0_PMV_FINAL.xlsx")
+    # Busca el Excel en todas las rutas posibles
+    posibles = [
+        "SIAP_ICPI_v1_0_PMV_FINAL.xlsx",
+        "/mount/src/siap-icpi/SIAP_ICPI_v1_0_PMV_FINAL.xlsx",
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), 
+                     "SIAP_ICPI_v1_0_PMV_FINAL.xlsx"),
+    ]
+    ruta = None
+    for p in posibles:
+        if os.path.exists(p):
+            ruta = p
+            break
+    
+    if ruta is None:
+        archivos = os.listdir('.')
+        raise FileNotFoundError(
+            f"Excel no encontrado. Archivos en directorio: {archivos}"
+        )
+    
     wb = openpyxl.load_workbook(ruta, data_only=True)
-    )
     d = {}
+    ws14 = wb['H14_CALCULO_ICPI']
+    d['icpi'] = ws14['B32'].value or 41.24
+    ws01 = wb['H01_PARAMETROS_GENERALES']
+    d['icm'] = (ws01['B12'].value or 1.0) * 100
+    ws16 = wb['H16_ITAM_TRANSPARENCIA']
+    d['itam'] = (ws16['B27'].value or 0.621) * 100
+    ws15 = wb['H15_INDICES_COMPLEMENTARIOS']
+    d['ife'] = ws15['B31'].value or 85.0
+    d['ssc'] = (ws15['B44'].value or 0.0285) * 100
+    ws18 = wb['H18_IED_EFICIENCIA_DIRECTIVA']
+    direcciones = []
+    for row in ws18.iter_rows(min_row=7, max_row=14, values_only=True):
+        if row[0] and row[2]:
+            direcciones.append({'Dirección': str(row[0]), 'IED': float(row[2])*100})
+    d['ied'] = direcciones
+    ws14b = wb['H14_CALCULO_ICPI']
+    metas = []
+    for row in ws14b.iter_rows(min_row=6, max_row=25, values_only=True):
+        if row[0]:
+            metas.append({
+                'Meta': str(row[0]),
+                'P_i': float(row[1]) if row[1] else 0,
+                'V_i': int(row[9]) if row[9] is not None else 0,
+                'T_i': float(row[10]) if row[10] else 0,
+            })
+    d['metas'] = metas
+    wb.close()
+    return d
 
     # H14 - ICPI Global
     ws14 = wb['H14_CALCULO_ICPI']
