@@ -41,20 +41,20 @@ st.markdown("""
 
 @st.cache_data(show_spinner="Cargando motor SIAP-ICPI...")
 def cargar_datos():
-    # Usar listdir — sabemos que el directorio existe y el archivo aparece ahí
-    directorio = '/mount/src/siap-icpi/'
-    try:
-        archivos_xlsx = [f for f in os.listdir(directorio) if f.endswith('.xlsx')]
-    except Exception:
-        archivos_xlsx = [f for f in os.listdir('.') if f.endswith('.xlsx')]
-        directorio = './'
+    directorio_actual = os.path.dirname(os.path.abspath(__file__))
+    
+    archivos_xlsx = [
+        f for f in os.listdir(directorio_actual)
+        if f.endswith('.xlsx') and not f.startswith('~')
+    ]
 
     if not archivos_xlsx:
         raise FileNotFoundError(
-            f"Sin .xlsx. Archivos en directorio: {os.listdir(directorio)}"
+            f"Sin .xlsx en {directorio_actual}. "
+            f"Archivos: {os.listdir(directorio_actual)}"
         )
 
-    ruta = os.path.join(directorio, archivos_xlsx[0])
+    ruta = os.path.join(directorio_actual, archivos_xlsx[0])
     wb = openpyxl.load_workbook(ruta, data_only=True)
     d = {}
 
