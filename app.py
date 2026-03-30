@@ -77,10 +77,9 @@ def cargar_datos():
     import glob
 
     # Buscar cualquier .xlsx en el sistema
-    rutas = (
-        glob.glob('/mount/src/siap-icpi/*.xlsx') +
-        glob.glob('/mount/src/**/*.xlsx', recursive=True) +
-        glob.glob('*.xlsx')
+  ruta = '/mount/src/siap-icpi/SIAP_ICPI_v1.0_PMV_FINAL.xlsx'
+    if not os.path.exists(ruta):
+        raise FileNotFoundError(f"No encontrado: {ruta}")
     )
 
     if not rutas:
