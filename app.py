@@ -85,7 +85,7 @@ def cargar_datos():
     for d in directorios:
         try:
             for f in os.listdir(d):
-                if 'SIAP' in f and f.endswith('.xlsx'):
+               if f.endswith('.xlsx'):
                     ruta = os.path.join(d, f)
                     break
         except Exception:
