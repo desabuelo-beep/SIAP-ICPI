@@ -9,4 +9,4 @@ la **Congruencia Programática e Intersistémica** entre lo que un gobierno
 local planifica, ejecuta y reporta públicamente.
 
 Detecta la **brecha entre el ICM oficial (auto-reporte SIGAD) y el ICPI 
-verificado algorítmicamente** — en Montecristi 2024: **58.76 puntos porcentuales**.
+verificado algorítmicamente**
