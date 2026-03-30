@@ -172,7 +172,7 @@ with st.sidebar:
         "👥 Vista Ciudadana TAC",
     ], label_visibility="collapsed")
     st.divider()
-    st.caption("GAD Municipal de Montecristi\nPeríodo Fiscal 2024\nRonald J. Delgado Santana")
+    st.caption("GAD Municipal de Montecristi\nPeríodo Fiscal 2024\nJavo Delgado Santana")
  
 # ── CARGA ─────────────────────────────────────────────────────────
 try:
