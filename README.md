@@ -1,4 +1,4 @@
-# 🏛️ TERRA SIAP-ICPI v2.0
+# 🏛️ TERRA CIUDADANA SIAP-ICPI v2.0
 ## Sistema de Integridad Algorítmica Preventiva
 ### QUADRUM GovTech | GAD Municipal de Montecristi | Ecuador
 
@@ -7,8 +7,8 @@
 ## ¿Qué es TERRA?
 
 TERRA es un ecosistema de gobernanza preventiva que 
-democratiza la auditoría territorial mediante verificación 
-cruzada algorítmica de 9 silos de información pública 
+democratiza el acceso a nuevas tecnologias para la incidencia ciudadana territorial 
+mediante verificación cruzada algorítmica de 9 silos de información pública 
 independientes.
 
 **ICPI Real Montecristi 2024: 72.93% 🟢**
