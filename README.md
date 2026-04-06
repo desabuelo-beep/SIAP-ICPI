@@ -1,12 +1,58 @@
-# SIAP-ICPI v1.0 — Sistema de Integridad Algorítmica Preventiva
+# 🏛️ TERRA SIAP-ICPI v2.0
+## Sistema de Integridad Algorítmica Preventiva
+### QUADRUM GovTech | GAD Municipal de Montecristi | Ecuador
 
-**Plataforma GovTech QUADRUM | GAD Municipal de Montecristi | Ecuador**
+---
 
-## ¿Qué es el SIAP-ICPI?
+## ¿Qué es TERRA?
 
-El SIAP-ICPI es un sistema de verificación algorítmica preventiva que mide 
-la **Congruencia Programática e Intersistémica** entre lo que un gobierno 
-local planifica, ejecuta y reporta públicamente.
+TERRA es un ecosistema de gobernanza preventiva que 
+democratiza la auditoría territorial mediante verificación 
+cruzada algorítmica de 9 silos de información pública 
+independientes.
 
-Detecta la **brecha entre el ICM oficial (auto-reporte SIGAD) y el ICPI 
-verificado algorítmicamente**
+**ICPI Real Montecristi 2024: 72.93% 🟢**
+**ICM Declarado SIGAD: 100% | Brecha: 27.07 puntos**
+
+---
+
+## Dos productos
+
+### 🏛️ TERRA GAD
+Sistema operativo diario para gobiernos locales.
+SaaS B2G — en construcción.
+
+### 👥 TERRA CIUDADANA
+Plataforma pública de auditoría ciudadana independiente.
+7 componentes | Acceso libre | PMV activo.
+
+---
+
+## Metodología
+
+**Fórmula canónica ICPI:**
+ICPI = [Σ(Pi × Ri × Vi × Ei × Ti × Ci) / Σ(Pi × Ri)] × 100
+
+**Escala AVEP:** 5 niveles de clasificación
+**9 Silos verificadores** | **4 Señales SAT** | **6 Índices maestros**
+
+---
+
+## Caso piloto: GAD Montecristi 2024
+
+| Indicador | Valor |
+|-----------|-------|
+| ICPI Verificado | 72.93% 🟢 |
+| IFE Electoral | 77.00% |
+| ICM SIGAD | 100.00% |
+| Brecha MOM | 27.07 pp |
+| ITAM | 70.00% |
+| ICS | 63.51% |
+
+---
+
+## Autor
+
+Javier Delgado Santana  
+Investigador — QUADRUM GovTech  
+Diplomado DGIP CAF-ESPOL 2026
