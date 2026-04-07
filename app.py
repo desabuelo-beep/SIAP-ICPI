@@ -1307,6 +1307,6 @@ st.markdown("""
     Ronald Javier Delgado Santana | Diplomado DGIP CAF-ESPOL 2026<br>
     Metodología SIAP-ICPI | Caso piloto: GAD Municipal de Montecristi<br>
     <br>
-    El derecho a saber es constitucional. Esta herramienta no sustituye asesoría jurídica profesional.
+    El acceso a información pública es un derecho constitucional. Esta herramienta no sustituye asesoría jurídica profesional.
 </div>
 """, unsafe_allow_html=True)
