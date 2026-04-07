@@ -853,7 +853,30 @@ elif activo == "calcula":
                 {hash_resultado}
             </div>
             """, unsafe_allow_html=True)
+            
+    st.markdown("---")
+    st.markdown("### 💬 Pregúntale a TERRA sobre estos datos")
 
+    import google.generativeai as genai
+    genai.configure(api_key=st.secrets["GEMINI_KEY"])
+
+    pregunta = st.chat_input("Escribe tu pregunta sobre Montecristi...")
+    if pregunta:
+        with st.spinner("Analizando..."):
+            modelo = genai.GenerativeModel("gemini-1.5-flash")
+            contexto = f"""
+            Eres TERRA, asistente de auditoría municipal ciudadana.
+            Datos verificados de Montecristi 2024:
+            - ICPI global: 72.93% (Gestión por Mandato)
+            - ICM declarado: 100%
+            - Brecha: 27.07 puntos
+            - Meta más crítica: Señalización vial con 0%
+            - Meta mejor ejecutada: Salud y Fortalecimiento Productivo con 95%
+            Responde en lenguaje simple y ciudadano. Máximo 3 párrafos.
+            """
+            respuesta = modelo.generate_content(contexto + "\n\nPregunta: " + pregunta)
+            st.markdown(respuesta.text)
+    
     else:
         st.info("📂 Sube tus documentos en TERRA VERIFICA primero para calcular el ICPI de tu municipio.")
         st.markdown("""
