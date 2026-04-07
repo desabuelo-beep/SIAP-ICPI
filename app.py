@@ -1,7 +1,7 @@
 """
 TERRA CIUDADANA — Sistema de Integridad Algorítmica Preventiva
 QUADRUM GovTech | v2.0 | 2026
-Plataforma Pública de Participación  
+Plataforma pública de auditoría ciudadana independiente
 """
 
 import streamlit as st
@@ -869,40 +869,6 @@ elif activo == "calcula":
             </div>
         </div>
         """, unsafe_allow_html=True)
-
-st.markdown("---")
-        st.markdown("### 💬 Pregúntale a TERRA sobre estos datos")
-        
-        import google.generativeai as genai
-        
-        # Configuramos la llave que puso en los Secrets
-        genai.configure(api_key=st.secrets["GEMINI_KEY"])
-        
-        pregunta = st.chat_input("Escribe tu pregunta sobre Montecristi...")
-        
-        if pregunta:
-            with st.spinner("Analizando con Inteligencia Artificial..."):
-                try:
-                    # Usamos el prefijo 'models/' para evitar el InvalidArgument
-                    modelo = genai.GenerativeModel("models/gemini-1.5-flash")
-                    
-                    contexto = f"""
-                    Eres TERRA, el asistente oficial de auditoría municipal de QUADRUM. 
-                    Tu objetivo es ayudar al ciudadano a entender estos datos reales de Montecristi 2024:
-                    - ICPI global: 72.93% (Clasificación: Gestión por Mandato)
-                    - Cumplimiento declarado por el Alcalde: 100%
-                    - Brecha detectada: 27.07 puntos porcentuales.
-                    - Peores metas: Señalización vial y Salud (0%).
-                    - Mejores metas: Vivienda y Fortalecimiento Productivo (95%).
-                    
-                    INSTRUCCIONES: Responde siempre de forma técnica pero fácil de entender para un vecino. 
-                    No inventes datos. Máximo 3 párrafos.
-                    """
-                    
-                    respuesta = modelo.generate_content(contexto + "\n\nPregunta del ciudadano: " + pregunta)
-                    st.info(respuesta.text)
-                except Exception as e:
-                    st.error(f"Hubo un problema con la conexión a la IA: {e}")
 
 # ─────────────────────────────────────────────
 # C4 — TERRA MAPEA
