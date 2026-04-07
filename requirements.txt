@@ -12,3 +12,6 @@ requests
 supabase
 numpy
 google-generativeai
+folium
+streamlit-folium
+fpdf2
