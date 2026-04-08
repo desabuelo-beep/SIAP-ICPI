@@ -326,7 +326,7 @@ def seccion_gemini_chat(contexto_datos):
             try:
                 import google.generativeai as genai
                 genai.configure(api_key=st.secrets["GEMINI_KEY"])
-                modelo = genai.GenerativeModel("gemini-1.5-flash")
+                modelo = genai.GenerativeModel("gemini-pro")
                 prompt = f"""
 Eres TERRA, el asistente de auditoría municipal ciudadana de QUADRUM GovTech Ecuador.
 Tu misión es explicar datos técnicos de gestión pública en lenguaje que cualquier ciudadano entienda.
