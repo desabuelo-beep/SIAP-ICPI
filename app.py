@@ -17,13 +17,13 @@ import os
 # GEMINI AI — Configuración (graceful degradation)
 # ─────────────────────────────────────────────
 try:
-    import google.generativeai as genai
+    from google import genai as _google_genai
     _GEMINI_LIB = True
 except ImportError:
     _GEMINI_LIB = False
 
 def _setup_gemini():
-    """Configura Gemini desde st.secrets o variable de entorno."""
+    """Configura Gemini desde st.secrets o variable de entorno. Usa google-genai SDK v2."""
     if not _GEMINI_LIB:
         return None
     key = ""
@@ -33,11 +33,10 @@ def _setup_gemini():
         key = os.environ.get("GEMINI_API_KEY", "")
     if not key:
         return None
-    genai.configure(api_key=key)
-    return genai.GenerativeModel("gemini-1.5-flash")
+    return _google_genai.Client(api_key=key)
 
-_modelo_gemini = _setup_gemini()
-GEMINI_ACTIVO = _modelo_gemini is not None
+_cliente_gemini = _setup_gemini()
+GEMINI_ACTIVO = _cliente_gemini is not None
 
 
 # ─────────────────────────────────────────────
@@ -1100,7 +1099,7 @@ mencionar los ODS alineados con la misión del organismo {financiador},
 y cerrar con una propuesta clara de área de intervención.
 Termina siempre con: "Generado por TERRA CIUDADANA | QUADRUM GovTech | {datetime.datetime.now().strftime('%d/%m/%Y')}" """
                 try:
-                    _resp_arg = _modelo_gemini.generate_content(_prompt_arg)
+                    _resp_arg = _cliente_gemini.models.generate_content(model="gemini-2.0-flash", contents=_prompt_arg)
                     argumento_texto = _resp_arg.text
                     st.markdown(argumento_texto)
                 except Exception as _e:
@@ -1226,7 +1225,7 @@ Responde en español, de forma clara y empática para un ciudadano sin formació
 3. Sugiere qué acción ciudadana puede tomar (LOTAIP, denuncia, participación en presupuesto)
 4. Mantén un tono empático y empoderador."""
                     try:
-                        _resp = _modelo_gemini.generate_content(_prompt_modb)
+                        _resp = _cliente_gemini.models.generate_content(model="gemini-2.0-flash", contents=_prompt_modb)
                         st.markdown(_resp.text)
                     except Exception as _e:
                         st.error(f"Error al consultar Gemini: {_e}")
@@ -1388,7 +1387,7 @@ Escribe un dictamen técnico-ciudadano de máximo 400 palabras que:
 4. Use un tono técnico pero accesible para ciudadanos sin formación especializada
 5. Mencione los mecanismos de control (CPCCS, Contraloría, Defensoría) cuando corresponda"""
                 try:
-                    _resp_tribunal = _modelo_gemini.generate_content(_prompt_tribunal)
+                    _resp_tribunal = _cliente_gemini.models.generate_content(model="gemini-2.0-flash", contents=_prompt_tribunal)
                     st.markdown(_resp_tribunal.text)
                     st.download_button(
                         "📥 Descargar dictamen IA (.txt)",
