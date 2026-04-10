@@ -23,14 +23,18 @@ except ImportError:
     _GEMINI_LIB = False
 
 def _setup_gemini():
-    """Configura Gemini desde st.secrets o variable de entorno. Usa google-genai SDK v2."""
+    """Configura Gemini desde st.secrets o variable de entorno. Usa google-genai SDK v2.
+    Acepta tanto GEMINI_API_KEY como GEMINI_KEY como nombre del secret."""
     if not _GEMINI_LIB:
         return None
     key = ""
     try:
-        key = st.secrets.get("GEMINI_API_KEY", "")
+        # Acepta cualquiera de los dos nombres posibles
+        key = (st.secrets.get("GEMINI_API_KEY", "")
+               or st.secrets.get("GEMINI_KEY", ""))
     except Exception:
-        key = os.environ.get("GEMINI_API_KEY", "")
+        key = (os.environ.get("GEMINI_API_KEY", "")
+               or os.environ.get("GEMINI_KEY", ""))
     if not key:
         return None
     return _google_genai.Client(api_key=key)
