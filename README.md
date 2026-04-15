@@ -28,16 +28,6 @@ Plataforma pública de auditoría ciudadana independiente.
 
 ---
 
-## Metodología
-
-**Fórmula canónica ICPI:**
-ICPI = [Σ(Pi × Ri × Vi × Ei × Ti × Ci) / Σ(Pi × Ri)] × 100
-
-**Escala AVEP:** 5 niveles de clasificación
-**9 Silos verificadores** | **4 Señales SAT** | **6 Índices maestros**
-
----
-
 ## Caso piloto: GAD Montecristi 2024
 
 | Indicador | Valor |
